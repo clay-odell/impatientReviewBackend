@@ -2,8 +2,9 @@
 const express = require('express');
 const router = express.Router();
 
-// adjust the filename here to match the actual file in your repo exactly
-const adminRoutes = require('./AdminRoutes'); // or './AdminRoutes' if that is the exact filename
+// These MUST match your actual filenames exactly (case‑sensitive on Linux)
+const adminRoutes = require('./AdminRoutes'); 
+const poemRoutes = require('./poemRoutes');
 
 // Health check
 router.get('/healthz', (req, res) => res.status(200).send('ok'));
@@ -13,6 +14,9 @@ router.get('/', (req, res) => res.json({ service: 'impatient-review', status: 'o
 
 // Mount admin routes at /api/admin
 router.use('/admin', adminRoutes);
+
+// Mount poem routes at /api/poems
+router.use('/poems', poemRoutes);
 
 // 404 for unknown API routes under /api
 router.use((req, res) => res.status(404).json({ error: 'Not found' }));
