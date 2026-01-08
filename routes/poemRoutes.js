@@ -1,7 +1,7 @@
 const express = require("express");
 const router = new express.Router();
 const ensureAdmin = require("../middleware/ensureAdmin");
-const poems = require("../controllers/poems");
+const poems = require("../controllers/poemControllers");
 
 router.post("/draft", ensureAdmin, poems.createDraft);
 router.get("/", ensureAdmin, poems.listPoems);
