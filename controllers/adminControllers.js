@@ -20,10 +20,12 @@ function createSession(req, res, admin) {
   // Ensure sessionID exists (express-session)
   const sid = req.sessionID;
   if (!sid) throw new Error("Session ID missing");
-  res.cookie("__Host-ir_session", sid, {
+  const isProd = process.env.NODE_ENV === "production";
+
+  res.cookie(isProd ? "__Host-ir_session" : "ir_session", sid, {
     httpOnly: true,
-    secure: true,
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     path: "/",
   });
 }
