@@ -6,6 +6,7 @@ const cors = require('cors');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const { Pool } = require('pg');
+const path = require('path');   // ✅ Needed for SPA fallback
 
 const routes = require('./routes');
 const {
@@ -77,9 +78,21 @@ app.use(cors({
 app.options(/.*/, cors());
 
 // ------------------------------------------------------------
-// ROUTES
+// API ROUTES
 // ------------------------------------------------------------
 app.use('/api', routes);
+
+// ------------------------------------------------------------
+// SERVE FRONTEND (React build)
+// ------------------------------------------------------------
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// ------------------------------------------------------------
+// SPA FALLBACK — MUST be before 404 handler
+// ------------------------------------------------------------
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist/index.html'));
+});
 
 // ------------------------------------------------------------
 // 404 HANDLER
