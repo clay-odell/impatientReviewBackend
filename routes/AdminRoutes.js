@@ -7,7 +7,7 @@ const { requireAdminAuth } = require('../middleware/auth');
 // Password flows
 router.post('/register', adminControllers.register);
 router.post('/login', adminControllers.login);
-router.post('/logout', requireAdminAuth, adminControllers.logout);
+router.post('/logout',  adminControllers.logout);
 router.post('/remove', requireAdminAuth, adminControllers.remove);
 
 // WebAuthn flows
