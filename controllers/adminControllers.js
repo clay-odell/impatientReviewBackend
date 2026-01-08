@@ -12,7 +12,7 @@ const {
 function createSession(req, res, admin) {
   if (!req || !res || !admin) throw new Error("createSession missing args");
   if (!req.session) throw new Error("Session middleware not configured");
-  req.session.admin = { id: admin.id, email: admin.email, username: admin.name };
+  req.session.admin = { id: admin.id, email: admin.email, username: admin.username };
   // Ensure sessionID exists (express-session)
   const sid = req.sessionID;
   if (!sid) throw new Error("Session ID missing");
