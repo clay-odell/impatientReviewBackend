@@ -22,13 +22,13 @@ router.delete('/credentials/:id', requireAdminAuth, adminControllers.removeCrede
 // Session check
 router.get('/me', (req, res) => {
   if (!req.session || !req.session.admin) {
-    return res.status(401).json({ error: "Not authenticated" });
+    return res.json({ admin: null });
   }
 
   const { id, email, username } = req.session.admin;
-
-  res.json({ id, email, username });
+  return res.json({ admin: { id, email, username } });
 });
+
 
 
 module.exports = router;
