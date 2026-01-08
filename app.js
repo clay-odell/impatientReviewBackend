@@ -34,7 +34,8 @@ app.use(cors({
 }));
 
 // respond to preflight quickly
-app.options('/*', cors());
+app.options(/.*/, cors());
+
 
 // mount API
 app.use('/api', routes);
