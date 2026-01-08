@@ -1,5 +1,11 @@
+// middleware/authMiddleware.js
+const { UnauthorizedError } = require('../helpers/expressError');
 
 exports.requireAdminAuth = (req, res, next) => {
-  if (req.session && req.session.admin && req.session.admin.id) return next();
-  return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    if (req.session && req.session.admin && req.session.admin.id) return next();
+    throw new UnauthorizedError();
+  } catch (err) {
+    next(err);
+  }
 };

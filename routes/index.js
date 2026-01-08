@@ -2,8 +2,8 @@
 const express = require('express');
 const router = express.Router();
 
-// Mount admin routes (adjust filename if different)
-const adminRoutes = require('./AdminRoutes');
+// adjust the filename here to match the actual file in your repo exactly
+const adminRoutes = require('./AdminRoutes'); // or './AdminRoutes' if that is the exact filename
 
 // Health check
 router.get('/healthz', (req, res) => res.status(200).send('ok'));

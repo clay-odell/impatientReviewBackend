@@ -1,4 +1,4 @@
-
+// server.js
 require('dotenv').config();
 const http = require('http');
 const app = require('./app');
@@ -12,7 +12,6 @@ server.listen(PORT, HOST, () => {
   console.log(`Server listening on http://${HOST}:${PORT}`);
 });
 
-// Graceful shutdown
 const shutdown = (signal) => {
   console.log(`Received ${signal}. Closing server...`);
   server.close((err) => {
@@ -23,8 +22,6 @@ const shutdown = (signal) => {
     console.log('Server closed. Exiting.');
     process.exit(0);
   });
-
-  // Force exit if shutdown takes too long
   setTimeout(() => {
     console.warn('Forcing shutdown after timeout.');
     process.exit(1);
@@ -33,13 +30,10 @@ const shutdown = (signal) => {
 
 process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
-
-// Log unhandled errors and exit
 process.on('uncaughtException', (err) => {
   console.error('Uncaught exception:', err);
   process.exit(1);
 });
-
 process.on('unhandledRejection', (reason) => {
   console.error('Unhandled rejection:', reason);
   process.exit(1);
