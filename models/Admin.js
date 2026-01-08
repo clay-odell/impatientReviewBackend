@@ -19,7 +19,7 @@ const origin = process.env.WEBAUTHN_ORIGIN || "https://example.com";
 
 class Admin {
   // Register admin with email + password (optional)
-  static async register({ email, password, name }) {
+  static async register({ email, password, username }) {
     const client = await db.connect();
     try {
       await client.query("BEGIN");
@@ -27,10 +27,10 @@ class Admin {
       // Basic validation
       if (!email) throw new Error("Email required");
       if (!password) throw new Error("Password required");
-      if (!name) throw new Error("Name required");
+      if (!username) throw new Error("Name required");
 
       // Normalize and validate name
-      const cleanName = name ? String(name).trim() : null;
+      const cleanName = username ? String(username).trim() : null;
       if (cleanName && cleanName.length > 100) {
         throw new Error("Name must be 100 characters or fewer");
       }
@@ -47,9 +47,9 @@ class Admin {
         : null;
 
       const res = await client.query(
-        `INSERT INTO admins (email, password_hash, name)
+        `INSERT INTO admins (email, password_hash, username)
        VALUES ($1, $2, $3)
-       RETURNING id, email, name`,
+       RETURNING id, email, username`,
         [email, passwordHash, cleanName]
       );
 
@@ -91,12 +91,12 @@ class Admin {
     const row = res.rows[0];
     if (!row || !row.password_hash) return null;
     const ok = await bcrypt.compare(password, row.password_hash);
-    return ok ? { id: row.id, email, name: row.name } : null;
+    return ok ? { id: row.id, email, name: row.username } : null;
   }
 
   static async findByEmail(email) {
     const res = await db.query(
-      "SELECT id, email, name, password_hash FROM admins WHERE email=$1",
+      "SELECT id, email, username, password_hash FROM admins WHERE email=$1",
       [email]
     );
     return res.rows[0] || null;
@@ -104,7 +104,7 @@ class Admin {
 
   static async findById(id) {
     const res = await db.query(
-      "SELECT id, email, name FROM admins WHERE id=$1",
+      "SELECT id, email, username FROM admins WHERE id=$1",
       [id]
     );
     return res.rows[0] || null;

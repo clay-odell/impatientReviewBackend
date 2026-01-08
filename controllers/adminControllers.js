@@ -12,7 +12,7 @@ const {
 function createSession(req, res, admin) {
   if (!req || !res || !admin) throw new Error("createSession missing args");
   if (!req.session) throw new Error("Session middleware not configured");
-  req.session.admin = { id: admin.id, email: admin.email, name: admin.name };
+  req.session.admin = { id: admin.id, email: admin.email, username: admin.name };
   // Ensure sessionID exists (express-session)
   const sid = req.sessionID;
   if (!sid) throw new Error("Session ID missing");
@@ -35,10 +35,10 @@ function requireSessionAdmin(req) {
 // Register with password
 exports.register = async (req, res, next) => {
   try {
-    const { email, password, name } = req.body || {};
+    const { email, password, username } = req.body || {};
     if (!email || !password)
       throw new BadRequestError("Email and password required");
-    const admin = await Admin.register({ email, password, name });
+    const admin = await Admin.register({ email, password, username });
     res.status(201).json({ admin });
   } catch (err) {
     next(err);
