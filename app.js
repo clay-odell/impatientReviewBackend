@@ -31,8 +31,11 @@ const pgPool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
+const isProd = process.env.NODE_ENV === "production";
+
 app.use(
   session({
+    name: isProd ? "__Host-ir_session" : "ir_session",   // ⭐ FIX #1
     store: new pgSession({
       pool: pgPool,
       tableName: 'session',
@@ -42,13 +45,14 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
       maxAge: 1000 * 60 * 60 * 24 * 7,
       path: "/",
     },
   })
 );
+
 
 
 // ------------------------------------------------------------
