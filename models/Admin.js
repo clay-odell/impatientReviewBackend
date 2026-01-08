@@ -27,6 +27,7 @@ class Admin {
       // Basic validation
       if (!email) throw new Error("Email required");
       if (!password) throw new Error("Password required");
+      if (!name) throw new Error("Name required");
 
       // Normalize and validate name
       const cleanName = name ? String(name).trim() : null;
