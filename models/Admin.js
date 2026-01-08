@@ -85,13 +85,13 @@ class Admin {
   // Authenticate by password
   static async authenticatePassword({ email, password }) {
     const res = await db.query(
-      "SELECT id, password_hash, name FROM admins WHERE email=$1",
+      "SELECT id, password_hash, username FROM admins WHERE email=$1",
       [email]
     );
     const row = res.rows[0];
     if (!row || !row.password_hash) return null;
     const ok = await bcrypt.compare(password, row.password_hash);
-    return ok ? { id: row.id, email, name: row.username } : null;
+    return ok ? { id: row.id, email, username: row.username } : null;
   }
 
   static async findByEmail(email) {
@@ -244,13 +244,13 @@ class Admin {
 
     // return admin info so caller can create a session with name/email
     const adminRes = await db.query(
-      "SELECT id, email, name FROM admins WHERE id=$1",
+      "SELECT id, email, username FROM admins WHERE id=$1",
       [adminId]
     );
     const adminRow = adminRes.rows[0];
     if (!adminRow) throw new Error("Admin not found after authentication");
 
-    return { id: adminId, email: adminRow.email, name: adminRow.name };
+    return { id: adminId, email: adminRow.email, username: adminRow.username };
   }
 
   // Utility: list admin credentials
