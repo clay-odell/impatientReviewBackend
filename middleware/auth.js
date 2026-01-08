@@ -1,5 +1,5 @@
 // middleware/authMiddleware.js
-const { UnauthorizedError } = require('../helpers/expressError');
+const { UnauthorizedError } = require('../expressError');
 
 exports.requireAdminAuth = (req, res, next) => {
   try {

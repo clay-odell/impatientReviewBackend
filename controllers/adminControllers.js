@@ -1,12 +1,12 @@
 // backend/controllers/adminController.js
-const Admin = require('../models/admin');
+const Admin = require('../models/Admin');
 const base64url = require('base64url');
 const {
   ExpressError,
   NotFoundError,
   UnauthorizedError,
   BadRequestError
-} = require('../helpers/expressError');
+} = require('../expressError');
 
 // Helper to set secure session cookie
 function createSession(req, res, admin) {
