@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const adminControllers = require('../controllers/adminControllers');
-const { requireAdminAuth } = require('../middleware/authMiddleware');
+const { requireAdminAuth } = require('../middleware/auth');
 
 // Password flows
 router.post('/register', adminControllers.register);
