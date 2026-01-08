@@ -1,6 +1,6 @@
 const express = require("express");
 const router = new express.Router();
-const ensureAdmin = require("../middleware/ensureAdmin");
+const ensureAdmin = require("../middleware/ensureAdminLogin");
 const poems = require("../controllers/poemControllers");
 
 router.post("/draft", ensureAdmin, poems.createDraft);
