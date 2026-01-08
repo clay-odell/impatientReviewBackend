@@ -42,12 +42,14 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true,       // requires trust proxy
-      sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+      path: "/",
     },
   })
 );
+
 
 // ------------------------------------------------------------
 // STANDARD MIDDLEWARE
