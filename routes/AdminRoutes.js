@@ -19,5 +19,17 @@ router.post('/webauthn/auth/verify', adminControllers.webauthnAuthVerify);
 // Credential management
 router.get('/credentials', requireAdminAuth, adminControllers.listCredentials);
 router.delete('/credentials/:id', requireAdminAuth, adminControllers.removeCredential);
+// Session check
+router.get('/me', (req, res) => {
+  if (!req.session || !req.session.adminId) {
+    return res.status(401).json({ error: "Not authenticated" });
+  }
+
+  res.json({
+    id: req.session.adminId,
+    email: req.session.adminEmail,
+    username: req.session.adminUsername,
+  });
+});
 
 module.exports = router;
