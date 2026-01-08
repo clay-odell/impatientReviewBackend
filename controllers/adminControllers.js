@@ -12,14 +12,16 @@ const {
 function createSession(req, res, admin) {
   if (!req || !res || !admin) throw new Error("createSession missing args");
   if (!req.session) throw new Error("Session middleware not configured");
+
   req.session.admin = {
     id: admin.id,
     email: admin.email,
     username: admin.username,
   };
-  // Ensure sessionID exists (express-session)
+
   const sid = req.sessionID;
   if (!sid) throw new Error("Session ID missing");
+
   const isProd = process.env.NODE_ENV === "production";
 
   res.cookie(isProd ? "__Host-ir_session" : "ir_session", sid, {
@@ -28,7 +30,13 @@ function createSession(req, res, admin) {
     sameSite: isProd ? "none" : "lax",
     path: "/",
   });
+
+  // ⭐ THIS IS THE MISSING PIECE
+  req.session.save((err) => {
+    if (err) console.error("Session save error:", err);
+  });
 }
+
 
 // Helper: ensure admin session exists
 function requireSessionAdmin(req) {
