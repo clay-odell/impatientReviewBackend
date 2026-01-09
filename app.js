@@ -92,7 +92,8 @@ app.use(
 );
 
 // ensure preflight is handled for all routes
-app.options("*", cors());
+app.options(/.*/, cors());
+
 
 // ------------------------------------------------------------
 // API ROUTES
