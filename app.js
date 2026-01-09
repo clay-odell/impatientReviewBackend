@@ -33,19 +33,22 @@ const pgPool = new Pool({
 
 const isProd = process.env.NODE_ENV === "production";
 
+// Ensure SESSION_SECRET exists in production
+const SESSION_SECRET = process.env.SESSION_SECRET || "dev-secret-change-me";
+
 app.use(
   session({
-    name: isProd ? "__Host-ir_session" : "ir_session", // ⭐ FIX #1
+    name: isProd ? "__Host-ir_session" : "ir_session",
     store: new pgSession({
       pool: pgPool,
       tableName: "session",
     }),
-    secret: process.env.SESSION_SECRET,
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: isProd,
+      secure: isProd, // requires HTTPS in production
       sameSite: isProd ? "none" : "lax",
       maxAge: 1000 * 60 * 60 * 24 * 7,
       path: "/",
@@ -67,7 +70,6 @@ const allowedOrigins = (
   process.env.CORS_ORIGIN ||
   "https://impatientreview.com,https://api.impatientreview.com"
 )
-
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
@@ -75,8 +77,12 @@ const allowedOrigins = (
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // allow curl / server-to-server
-      if (allowedOrigins.includes(origin)) return callback(null, true);
+      // allow server-to-server or tools like curl (no origin)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        // echo the origin when credentials are allowed
+        return callback(null, origin);
+      }
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
@@ -85,7 +91,8 @@ app.use(
   })
 );
 
-app.options(/.*/, cors());
+// ensure preflight is handled for all routes
+app.options("*", cors());
 
 // ------------------------------------------------------------
 // API ROUTES

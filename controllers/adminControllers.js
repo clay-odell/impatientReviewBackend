@@ -10,13 +10,15 @@ const {
 
 // Helper to get cookie name consistently
 function sessionCookieName() {
-  return process.env.NODE_ENV === "production" ? "__Host-ir_session" : "ir_session";
+  return process.env.NODE_ENV === "production"
+    ? "__Host-ir_session"
+    : "ir_session";
 }
 
-// Helper to set secure session cookie
+// Helper to set session data and save (do NOT set cookie manually)
 // return a promise that resolves after session saved
-function createSession(req, res, admin) {
-  if (!req || !res || !admin) throw new Error("createSession missing args");
+function createSession(req, admin) {
+  if (!req || !admin) throw new Error("createSession missing args");
   if (!req.session) throw new Error("Session middleware not configured");
 
   req.session.admin = {
@@ -28,21 +30,13 @@ function createSession(req, res, admin) {
   const sid = req.sessionID;
   if (!sid) throw new Error("Session ID missing");
 
-  const isProd = process.env.NODE_ENV === "production";
-
-  res.cookie(sessionCookieName(), sid, {
-    httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? "none" : "lax",
-    path: "/",
-  });
-
   return new Promise((resolve, reject) => {
     req.session.save((err) => {
       if (err) {
         console.error("Session save error:", err);
         return reject(err);
       }
+      // express-session will set the cookie automatically according to its config
       resolve();
     });
   });
@@ -81,7 +75,7 @@ exports.login = async (req, res, next) => {
     if (!admin) throw new UnauthorizedError("Invalid credentials");
 
     // wait for session to be saved before responding
-    await createSession(req, res, admin);
+    await createSession(req, admin);
 
     // return safe admin info for immediate UI update (no secrets)
     res.json({ ok: true, admin: { id: admin.id, username: admin.username } });
@@ -96,7 +90,7 @@ exports.logout = (req, res, next) => {
     requireSessionAdmin(req);
     req.session.destroy((err) => {
       if (err) return next(err);
-      res.clearCookie(sessionCookieName());
+      res.clearCookie(sessionCookieName(), { path: "/" });
       res.json({ ok: true });
     });
   } catch (err) {
@@ -112,7 +106,7 @@ exports.remove = async (req, res, next) => {
     await Admin.remove(adminId);
     req.session.destroy((err) => {
       if (err) return next(err);
-      res.clearCookie(sessionCookieName());
+      res.clearCookie(sessionCookieName(), { path: "/" });
       res.json({ ok: true });
     });
   } catch (err) {
@@ -206,7 +200,7 @@ exports.webauthnAuthVerify = async (req, res, next) => {
     if (!admin) throw new NotFoundError("Admin not found after authentication");
 
     // await session creation so subsequent requests see admin
-    await createSession(req, res, admin);
+    await createSession(req, admin);
 
     delete req.session.webauthnChallenge;
     delete req.session.webauthnUserId;
