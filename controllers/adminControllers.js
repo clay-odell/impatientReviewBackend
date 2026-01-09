@@ -9,6 +9,7 @@ const {
 } = require("../expressError");
 
 // Helper to set secure session cookie
+// return a promise that resolves after session saved
 function createSession(req, res, admin) {
   if (!req || !res || !admin) throw new Error("createSession missing args");
   if (!req.session) throw new Error("Session middleware not configured");
@@ -31,9 +32,14 @@ function createSession(req, res, admin) {
     path: "/",
   });
 
-  // ⭐ THIS IS THE MISSING PIECE
-  req.session.save((err) => {
-    if (err) console.error("Session save error:", err);
+  return new Promise((resolve, reject) => {
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return reject(err);
+      }
+      resolve();
+    });
   });
 }
 
