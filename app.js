@@ -4,7 +4,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
-const pgSession = require("connect-pg-simple")(session);
+const PgSession = require("connect-pg-simple")(session);
 const { Pool } = require("pg");
 const path = require("path"); // ✅ Needed for SPA fallback
 
