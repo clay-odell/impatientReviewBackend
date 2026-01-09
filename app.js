@@ -42,7 +42,7 @@ app.use(
       process.env.NODE_ENV === "production"
         ? "__Host-ir_session"
         : "ir_session",
-    secret: process.env.SESSION_SECRET,
+    secret: SESSION_SECRET,
     store: new PgSession({ pool: pgPool }),
     resave: false,
     saveUninitialized: false,
