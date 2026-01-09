@@ -38,19 +38,18 @@ const SESSION_SECRET = process.env.SESSION_SECRET || "dev-secret-change-me";
 
 app.use(
   session({
-    name: isProd ? "__Host-ir_session" : "ir_session",
-    store: new pgSession({
-      pool: pgPool,
-      tableName: "session",
-    }),
-    secret: SESSION_SECRET,
+    name:
+      process.env.NODE_ENV === "production"
+        ? "__Host-ir_session"
+        : "ir_session",
+    secret: process.env.SESSION_SECRET,
+    store: new PgSession({ pool: pgPool }),
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: isProd, // requires HTTPS in production
+      secure: isProd,
       sameSite: isProd ? "none" : "lax",
-      maxAge: 1000 * 60 * 60 * 24 * 7,
       path: "/",
     },
   })
@@ -93,7 +92,6 @@ app.use(
 
 // ensure preflight is handled for all routes
 app.options(/.*/, cors());
-
 
 // ------------------------------------------------------------
 // API ROUTES
