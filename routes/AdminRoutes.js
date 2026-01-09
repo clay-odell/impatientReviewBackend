@@ -21,13 +21,15 @@ router.get('/credentials', requireAdminAuth, adminControllers.listCredentials);
 router.delete('/credentials/:id', requireAdminAuth, adminControllers.removeCredential);
 // Session check
 router.get('/me', (req, res) => {
+  console.log('GET /me hit; method:', req.method, 'session:', !!req.session, 'admin:', !!req.session?.admin);
   if (!req.session || !req.session.admin) {
-    return res.json({ admin: null });
+    return res.status(401).json({ admin: null }); // explicit 401 for unauthenticated
   }
 
   const { id, email, username } = req.session.admin;
-  return res.json({ admin: { id, email, username } });
+  return res.status(200).json({ admin: { id, email, username } });
 });
+
 
 
 
