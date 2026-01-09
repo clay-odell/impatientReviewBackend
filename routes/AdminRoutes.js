@@ -1,36 +1,14 @@
-// backend/routes/adminRoutes.js
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const adminControllers = require('../controllers/adminControllers');
-const { requireAdminAuth } = require('../middleware/auth');
+const adminController = require("../controllers/adminController");
+const { requireAdmin } = require("../middleware/auth");
 
-// Password flows
-router.post('/register', adminControllers.register);
-router.post('/login', adminControllers.login);
-router.post('/logout',  adminControllers.logout);
-router.post('/remove', requireAdminAuth, adminControllers.remove);
+// Public
+router.post("/login", adminController.login);
+router.post("/register", adminController.register); // optional
 
-// WebAuthn flows
-router.post('/webauthn/register/options', requireAdminAuth, adminControllers.webauthnRegisterOptions);
-router.post('/webauthn/register/verify', requireAdminAuth, adminControllers.webauthnRegisterVerify);
-router.post('/webauthn/auth/options', adminControllers.webauthnAuthOptions);
-router.post('/webauthn/auth/verify', adminControllers.webauthnAuthVerify);
-
-// Credential management
-router.get('/credentials', requireAdminAuth, adminControllers.listCredentials);
-router.delete('/credentials/:id', requireAdminAuth, adminControllers.removeCredential);
-// Session check
-router.get('/me', (req, res) => {
-  console.log('GET /me hit; method:', req.method, 'session:', !!req.session, 'admin:', !!req.session?.admin);
-  if (!req.session || !req.session.admin) {
-    return res.status(401).json({ admin: null }); // explicit 401 for unauthenticated
-  }
-
-  const { id, email, username } = req.session.admin;
-  return res.status(200).json({ admin: { id, email, username } });
-});
-
-
-
+// Protected
+router.get("/me", requireAdmin, adminController.me);
+router.post("/logout", requireAdmin, adminController.logout);
 
 module.exports = router;

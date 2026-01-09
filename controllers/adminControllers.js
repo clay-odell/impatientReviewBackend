@@ -16,31 +16,29 @@ function sessionCookieName() {
 }
 
 // Helper to set session data and save (do NOT set cookie manually)
-// return a promise that resolves after session saved
-function createSession(req, admin) {
+// controllers/adminController.js
+async function createSession(req, admin) {
   if (!req || !admin) throw new Error("createSession missing args");
   if (!req.session) throw new Error("Session middleware not configured");
 
+  // regenerate
+  await new Promise((resolve, reject) => {
+    req.session.regenerate((err) => (err ? reject(err) : resolve()));
+  });
+
+  // set session data
   req.session.admin = {
     id: admin.id,
     email: admin.email,
     username: admin.username,
   };
 
-  const sid = req.sessionID;
-  if (!sid) throw new Error("Session ID missing");
-
-  return new Promise((resolve, reject) => {
-    req.session.save((err) => {
-      if (err) {
-        console.error("Session save error:", err);
-        return reject(err);
-      }
-      // express-session will set the cookie automatically according to its config
-      resolve();
-    });
+  // save
+  await new Promise((resolve, reject) => {
+    req.session.save((err) => (err ? reject(err) : resolve()));
   });
 }
+
 
 // Helper: ensure admin session exists
 function requireSessionAdmin(req) {
@@ -65,24 +63,23 @@ exports.register = async (req, res, next) => {
 };
 
 // Password login
+// in controllers/adminController.js
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body || {};
-    if (!email || !password)
-      throw new BadRequestError("Email and password required");
+    if (!email || !password) throw new BadRequestError("Email and password required");
 
     const admin = await Admin.authenticatePassword({ email, password });
     if (!admin) throw new UnauthorizedError("Invalid credentials");
 
-    // wait for session to be saved before responding
-    await createSession(req, admin);
+    await createSession(req, admin); // Option A
 
-    // return safe admin info for immediate UI update (no secrets)
     res.json({ ok: true, admin: { id: admin.id, username: admin.username } });
   } catch (err) {
     next(err);
   }
 };
+
 
 // Logout
 exports.logout = (req, res, next) => {
