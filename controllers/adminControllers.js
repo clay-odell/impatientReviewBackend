@@ -74,12 +74,16 @@ exports.login = async (req, res, next) => {
       throw new BadRequestError("Email and password required");
     const admin = await Admin.authenticatePassword({ email, password });
     if (!admin) throw new UnauthorizedError("Invalid credentials");
-    createSession(req, res, admin);
+
+    // wait for session to be saved before responding
+    await createSession(req, res, admin);
+
     res.json({ ok: true });
   } catch (err) {
     next(err);
   }
 };
+
 
 // Logout
 exports.logout = (req, res, next) => {
