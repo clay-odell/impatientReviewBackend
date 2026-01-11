@@ -1,4 +1,4 @@
-// backend/controllers/adminController.js
+// backend/controllers/adminControllers.js
 const Admin = require("../models/Admin");
 const base64url = require("base64url");
 const {
@@ -110,6 +110,28 @@ exports.remove = async (req, res, next) => {
     next(err);
   }
 };
+// backend/controllers/adminControllers.js
+// Add this export near the other handlers (e.g., after exports.login)
+
+exports.me = async (req, res, next) => {
+  try {
+    // Defensive logging to help debug in production
+    console.log("ENTER adminControllers.me - session present:", !!req.session, "session.admin:", req.session && req.session.admin);
+
+    // If no session/admin, return 401 (client will handle redirect)
+    if (!req.session || !req.session.admin) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // Return the admin object (only expose safe fields)
+    const admin = req.session.admin;
+    return res.json({ admin: { id: admin.id, username: admin.username, email: admin.email } });
+  } catch (err) {
+    console.error("adminControllers.me unexpected error:", err && err.stack ? err.stack : err);
+    return next(err);
+  }
+};
+
 
 // WebAuthn: registration options
 exports.webauthnRegisterOptions = async (req, res, next) => {
