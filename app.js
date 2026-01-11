@@ -74,11 +74,7 @@ app.use(
   })
 );
 
-// Optional debug middleware (temporary)
-app.use((req, res, next) => {
-  console.log("DEBUG:", req.method, req.originalUrl, "sessionID=", req.sessionID);
-  next();
-});
+
 
 // API routes (after session + CORS)
 app.use("/api", routes);
